@@ -1,0 +1,20 @@
+# Rust / Soroban
+/target
+**/target
+Cargo.lock
+
+# Node / frontend
+frontend/node_modules
+frontend/dist
+frontend/.env
+frontend/.env.local
+frontend/coverage
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+*.log
+
+# Deployment artifacts
+.soroban
