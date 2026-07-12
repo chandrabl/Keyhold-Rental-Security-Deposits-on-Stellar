@@ -1,0 +1,19 @@
+[package]
+name = "deposit"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk = "21.7.6"
+inspection = { path = "../inspection" }
+
+[dev-dependencies]
+soroban-sdk = { version = "21.7.6", features = ["testutils"] }
+inspection = { path = "../inspection", features = ["testutils"] }
+
+[features]
+testutils = ["soroban-sdk/testutils"]
