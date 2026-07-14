@@ -33,7 +33,9 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install Stellar CLI
-        run: cargo install --locked stellar-cli
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          cargo binstall --no-confirm stellar-cli
 
       - name: Build Contracts
         run: stellar contract build

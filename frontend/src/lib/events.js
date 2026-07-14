@@ -1,7 +1,7 @@
-import { SorobanRpc, scValToNative } from '@stellar/stellar-sdk'
+import { rpc, scValToNative } from '@stellar/stellar-sdk'
 import { RPC_URL, DEPOSIT_CONTRACT_ID, INSPECTION_CONTRACT_ID } from './config'
 
-const server = new SorobanRpc.Server(RPC_URL, { allowHttp: RPC_URL.startsWith('http://') })
+const server = new rpc.Server(RPC_URL, { allowHttp: RPC_URL.startsWith('http://') })
 
 let lastLedger = null
 

@@ -1,6 +1,6 @@
 import {
   Contract,
-  SorobanRpc,
+  rpc,
   TransactionBuilder,
   BASE_FEE,
   nativeToScVal,
@@ -10,7 +10,7 @@ import {
 import { NETWORK_PASSPHRASE, RPC_URL } from './config'
 import { signTransaction } from './wallet'
 
-const server = new SorobanRpc.Server(RPC_URL, { allowHttp: RPC_URL.startsWith('http://') })
+const server = new rpc.Server(RPC_URL, { allowHttp: RPC_URL.startsWith('http://') })
 
 export function getServer() {
   return server
@@ -29,11 +29,11 @@ export async function invokeContract({ contractId, method, args = [], sourcePubl
     .build()
 
   const simulated = await server.simulateTransaction(tx)
-  if (SorobanRpc.Api.isSimulationError(simulated)) {
+  if (rpc.Api.isSimulationError(simulated)) {
     throw new Error(`Simulation failed: ${simulated.error}`)
   }
 
-  const prepared = SorobanRpc.assembleTransaction(tx, simulated).build()
+  const prepared = rpc.assembleTransaction(tx, simulated).build()
   const signedXdr = await signTransaction(prepared.toXDR(), NETWORK_PASSPHRASE)
   const signedTx = TransactionBuilder.fromXDR(signedXdr, NETWORK_PASSPHRASE)
 
@@ -71,7 +71,7 @@ export async function readContract({ contractId, method, args = [], sourcePublic
     .build()
 
   const simulated = await server.simulateTransaction(tx)
-  if (SorobanRpc.Api.isSimulationError(simulated)) {
+  if (rpc.Api.isSimulationError(simulated)) {
     throw new Error(`Simulation failed: ${simulated.error}`)
   }
   if (!simulated.result) return null
