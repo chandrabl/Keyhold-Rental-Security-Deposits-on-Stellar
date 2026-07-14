@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
   
 # 🗝️ Keyhold - Rental Security Deposits on Stellar
 
@@ -31,14 +31,12 @@ The smart contracts are live and deployed to the **Stellar Testnet** via automat
 
 | Contract | Contract ID | Explorer |
 |---|---|---|
-| 🏦 **Deposit** | CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) |
-| 🔍 **Inspection** | CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) |
-
-*Note: Replace the contract IDs above with your actual deployed IDs if available.*
+| 🏦 **Deposit** | `CAPKWITBW4DML7VDN2OXWDCRHZ7VWVATSJ3PTOFSL6KB42WE3GM5AT5B` | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAPKWITBW4DML7VDN2OXWDCRHZ7VWVATSJ3PTOFSL6KB42WE3GM5AT5B) |
+| 🔍 **Inspection** | `CDXB4HBJR7XNTFDNMEREE5WSPYOJYMKCLTB32FDY4JAARWSBCVC72FO6` | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDXB4HBJR7XNTFDNMEREE5WSPYOJYMKCLTB32FDY4JAARWSBCVC72FO6) |
 
 ### 🔗 Transaction Example
 **Deposit Funded / Contract Interaction:**  
-[cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859](https://stellar.expert/explorer/testnet/tx/cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859)
+[`cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859`](https://stellar.expert/explorer/testnet/tx/cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859)
 
 ---
 
@@ -48,10 +46,10 @@ Keyhold treats the deposit contract and the claims-adjudication contract as genu
 
 1. **Landlord drafts lease terms** — tenant, token, deposit amount, lease end date, and a claim window (how long after lease end they have to file a claim).
 2. **Tenant reviews and funds** the deposit, activating the lease.
-3. **At lease end**, if the landlord files no claim within the window, **anyone** can call elease_deposit to return the full deposit to the tenant.
+3. **At lease end**, if the landlord files no claim within the window, **anyone** can call `release_deposit` to return the full deposit to the tenant.
 4. **If the landlord files a claim** instead (with a claimed amount and reason), it escalates to the Inspection contract via a cross-contract call.
 5. **A trusted inspector rules** on how much of the claimed amount is justified.
-6. **Anyone can call settle_claim** afterward — it reads the ruling back from Inspection and splits the deposit: the ruled amount to the landlord, the remainder back to the tenant.
+6. **Anyone can call `settle_claim`** afterward — it reads the ruling back from Inspection and splits the deposit: the ruled amount to the landlord, the remainder back to the tenant.
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and event table.
 
@@ -65,7 +63,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and event table.
 | **Token Standard** | SEP-41 (Stellar Asset Contract compatible) |
 | **Frontend** | React 18 + Vite + Tailwind CSS |
 | **Wallet** | Freighter |
-| **Testing** | cargo test (contracts), Vitest + Testing Library (frontend) |
+| **Testing** | `cargo test` (contracts), Vitest + Testing Library (frontend) |
 | **CI/CD** | GitHub Actions |
 | **Hosting** | Vercel |
 
@@ -74,16 +72,16 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and event table.
 ## 📸 Screenshots
 
 ### Product UI
-<img src="./images/product%20ui.png" alt="Product UI" width="800"/>
+<img src="./images/product-ui.png" alt="Product UI" width="800"/>
 
 ### Mobile Responsive UI
-<img src="./images/responsive%20ui.png" alt="Mobile Responsive UI" width="300"/>
+<img src="./images/responsive-ui.png" alt="Mobile Responsive UI" width="300"/>
 
 ### CI/CD Pipeline
-<img src="./images/CI%20CD.png" alt="CI CD Pipeline" width="800"/>
+<img src="./images/ci-cd.png" alt="CI CD Pipeline" width="800"/>
 
 ### Test Output (3+ passing tests)
-<img src="./images/test%20output.png" alt="Test Output" width="800"/>
+<img src="./images/test-output.png" alt="Test Output" width="800"/>
 
 ---
 
