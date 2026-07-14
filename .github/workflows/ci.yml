@@ -33,7 +33,7 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install Stellar CLI
-        run: cargo install --locked stellar-cli --features opt
+        run: cargo install --locked stellar-cli
 
       - name: Build Contracts
         run: stellar contract build
