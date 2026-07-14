@@ -41,6 +41,15 @@ export default function App() {
     [wallet.address]
   )
 
+  // Poll lease states every 5s to stay in sync with the blockchain
+  useEffect(() => {
+    if (!configured || knownLeaseIds.length === 0) return
+    const interval = setInterval(() => {
+      knownLeaseIds.forEach((id) => refreshLease(id))
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [knownLeaseIds, configured, refreshLease])
+
   useEffect(() => {
     if (!configured || feed.length === 0) return
     const leaseIds = new Set()
@@ -83,6 +92,8 @@ export default function App() {
     try {
       const { hash } = await fn(...args)
       setTxByLease((prev) => ({ ...prev, [leaseId]: hash }))
+      // Wait for the blockchain state to propagate before refreshing
+      await new Promise((res) => setTimeout(res, 3000))
       await refreshLease(leaseId)
       if (wallet.refreshBalance) await wallet.refreshBalance()
     } catch (err) {
