@@ -202,7 +202,7 @@ impl DepositContract {
 
         // Cross-contract call out to the Inspection contract.
         let inspection_client = InspectionContractClient::new(&env, &inspection_address);
-        inspection_client.file_claim(
+        inspection_client.init_inspection_claim(
             &env.current_contract_address(),
             &lease_id,
             &landlord,

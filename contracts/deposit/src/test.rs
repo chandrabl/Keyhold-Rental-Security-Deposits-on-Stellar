@@ -41,7 +41,7 @@ fn setup() -> TestSetup {
 
     let inspection_id = env.register(InspectionContract, ());
     let inspection = InspectionContractClient::new(&env, &inspection_id);
-    inspection.initialize(&inspection_admin);
+    inspection.init_inspection(&inspection_admin);
 
     let deposit_id = env.register(DepositContract, ());
     let deposit = DepositContractClient::new(&env, &deposit_id);

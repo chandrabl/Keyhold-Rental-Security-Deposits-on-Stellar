@@ -8,7 +8,7 @@ fn setup(env: &Env) -> (InspectionContractClient<'static>, Address) {
     let contract_id = env.register(InspectionContract, ());
     let client = InspectionContractClient::new(env, &contract_id);
     let admin = Address::generate(env);
-    client.initialize(&admin);
+    client.init_inspection(&admin);
     (client, admin)
 }
 
@@ -25,7 +25,7 @@ fn test_cannot_initialize_twice() {
     let env = Env::default();
     env.mock_all_auths();
     let (client, admin) = setup(&env);
-    let result = client.try_initialize(&admin);
+    let result = client.try_init_inspection(&admin);
     assert_eq!(result, Err(Ok(InspectionError::AlreadyInitialized)));
 }
 

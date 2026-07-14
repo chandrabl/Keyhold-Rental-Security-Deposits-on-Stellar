@@ -51,7 +51,7 @@ soroban contract invoke \
   --id $INSPECTION_ID \
   --source deployer \
   --network testnet \
-  -- initialize --admin $(soroban keys address deployer)
+  -- init_inspection --admin $(soroban keys address deployer)
 ```
 
 ## 4. Deploy the Deposit contract

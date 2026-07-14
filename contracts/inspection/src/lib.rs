@@ -64,7 +64,7 @@ pub struct InspectionContract;
 #[contractimpl]
 impl InspectionContract {
     /// One-time setup. `admin` becomes the first trusted inspector.
-    pub fn initialize(env: Env, admin: Address) -> Result<(), InspectionError> {
+    pub fn init_inspection(env: Env, admin: Address) -> Result<(), InspectionError> {
         if env.storage().instance().has(&DataKey::Admin) {
             return Err(InspectionError::AlreadyInitialized);
         }
@@ -104,7 +104,7 @@ impl InspectionContract {
 
     /// Called by the Deposit contract when a landlord files a damage claim
     /// against a lease's deposit.
-    pub fn file_claim(
+    pub fn init_inspection_claim(
         env: Env,
         deposit_contract: Address,
         lease_id: u64,
