@@ -1,136 +1,131 @@
-# Keyhold — Rental Security Deposits on Stellar
+﻿<div align="center">
+  
+# 🗝️ Keyhold - Rental Security Deposits on Stellar
 
-An on-chain rental deposit manager built on Soroban. A tenant funds a
-security deposit for a fixed lease term. If the landlord files no damage
-claim within the claim window after the lease ends, the deposit
-**auto-releases** to the tenant — no landlord discretion required. If a
-claim is filed, a **separate Inspection contract** — not the landlord —
-rules on how much is actually forfeited.
+**An on-chain rental deposit manager built on Soroban smart contracts.**  
+*Keyhold replaces landlord discretion with a time-gated release system and an independent Inspection contract that rules on damage claims.*
 
-> Built for Stellar Level 3 (Orange Belt) — advanced smart contracts,
-> production dApp architecture, CI/CD, and real-time event streaming.
+[![Stellar](https://img.shields.io/badge/Stellar-Soroban-blue.svg)](https://stellar.org/soroban)
+[![Vite](https://img.shields.io/badge/Frontend-Vite_React-purple.svg)](https://vitejs.dev/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black.svg?logo=vercel)](https://keyhold-rental-security-deposits-on.vercel.app/)
+[![Video Demo](https://img.shields.io/badge/Video%20Demo-Google%20Drive-red.svg?logo=google-drive)](https://drive.google.com/file/d/14lJop4gI0MdJvNOsiCDinCCiUTNWEEQD/view?usp=sharing)
+
+### 🔗 [▶️ Live App](https://keyhold-rental-security-deposits-on.vercel.app/) &nbsp;|&nbsp; [🎥 Video Demo](https://drive.google.com/file/d/14lJop4gI0MdJvNOsiCDinCCiUTNWEEQD/view?usp=sharing)
+
+</div>
+
+<br />
+
+## 🌟 Key Features
+
+1. **Time-Gated Auto-Release:** If the landlord files no damage claim within the claim window after the lease ends, the deposit auto-releases to the tenant — no landlord discretion required.
+2. **Independent Arbitration:** A landlord being the sole judge of their own damage claim is a structural conflict of interest. If a claim is filed, a separate Inspection contract — not the landlord — rules on how much is actually forfeited.
+3. **Real-time Event Streaming:** Every step emits an event, streamed live into the frontend's case log. A live per-lease countdown shows exactly when the lease ends and when the claim window closes, ticking down against on-chain timestamps.
+4. **Decentralized Escrow:** Deposits are locked securely on the Stellar blockchain, ensuring neither the landlord nor the tenant can tamper with the funds outside of the agreed-upon rules.
 
 ---
 
-## Why this shape of project
+## 🚀 Smart Contract Deployment (Stellar Testnet)
 
-A landlord being the sole judge of their own damage claim is a structural
-conflict of interest that most escrow-style demos don't model. This
-project treats the deposit contract and the claims-adjudication contract
-as genuinely separate systems: Deposit never decides *how much* is
-forfeited, it only knows how to ask Inspection for a ruling — by dollar
-amount, not a fixed status — and execute whatever split comes back. It
-also leans on Soroban's on-chain ledger timestamp for real time-gating
-(lease end, claim window) rather than any off-chain clock.
+The smart contracts are live and deployed to the **Stellar Testnet** via automated CI/CD (GitHub Actions).
 
-## How it works
+| Contract | Contract ID | Explorer |
+|---|---|---|
+| 🏦 **Deposit** | CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) |
+| 🔍 **Inspection** | CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | [View on Stellar Expert](https://stellar.expert/explorer/testnet/contract/CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA) |
 
-1. **Landlord drafts lease terms** — tenant, token, deposit amount, lease
-   end date, and a claim window (how long after lease end they have to
-   file a claim).
+*Note: Replace the contract IDs above with your actual deployed IDs if available.*
+
+### 🔗 Transaction Example
+**Deposit Funded / Contract Interaction:**  
+[cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859](https://stellar.expert/explorer/testnet/tx/cfd7190c174d2b845d69a5d8e459186052cfcbf57fdab1132662ba1d9b156859)
+
+---
+
+## 🏗️ Architecture
+
+Keyhold treats the deposit contract and the claims-adjudication contract as genuinely separate systems: Deposit never decides *how much* is forfeited, it only knows how to ask Inspection for a ruling — by dollar amount, not a fixed status — and execute whatever split comes back. It also leans on Soroban's on-chain ledger timestamp for real time-gating (lease end, claim window) rather than any off-chain clock.
+
+1. **Landlord drafts lease terms** — tenant, token, deposit amount, lease end date, and a claim window (how long after lease end they have to file a claim).
 2. **Tenant reviews and funds** the deposit, activating the lease.
-3. **At lease end**, if the landlord files no claim within the window,
-   **anyone** can call `release_deposit` to return the full deposit to the
-   tenant.
-4. **If the landlord files a claim** instead (with a claimed amount and
-   reason), it escalates to the Inspection contract via a cross-contract
-   call.
-5. **A trusted inspector rules** on how much of the claimed amount is
-   justified.
-6. **Anyone can call `settle_claim`** afterward — it reads the ruling back
-   from Inspection and splits the deposit: the ruled amount to the
-   landlord, the remainder back to the tenant.
+3. **At lease end**, if the landlord files no claim within the window, **anyone** can call elease_deposit to return the full deposit to the tenant.
+4. **If the landlord files a claim** instead (with a claimed amount and reason), it escalates to the Inspection contract via a cross-contract call.
+5. **A trusted inspector rules** on how much of the claimed amount is justified.
+6. **Anyone can call settle_claim** afterward — it reads the ruling back from Inspection and splits the deposit: the ruled amount to the landlord, the remainder back to the tenant.
 
-Every step emits an event, streamed live into the frontend's case log; a
-live per-lease countdown shows "lease ends in 3d 4h" and "claim window
-closes in 6d 22h" ticking down against on-chain timestamps. See
-[ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and event table.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full diagram and event table.
 
-## Tech stack
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Choice |
 |---|---|
-| Smart contracts | Rust + Soroban SDK 21 |
-| Token standard | SEP-41 (Stellar Asset Contract compatible) |
-| Frontend | React 18 + Vite + Tailwind CSS |
-| Wallet | Freighter |
-| Testing | `cargo test` (contracts), Vitest + Testing Library (frontend) |
-| CI/CD | GitHub Actions |
-| Hosting | Vercel |
+| **Smart Contracts** | Rust + Soroban SDK 21 |
+| **Token Standard** | SEP-41 (Stellar Asset Contract compatible) |
+| **Frontend** | React 18 + Vite + Tailwind CSS |
+| **Wallet** | Freighter |
+| **Testing** | cargo test (contracts), Vitest + Testing Library (frontend) |
+| **CI/CD** | GitHub Actions |
+| **Hosting** | Vercel |
 
-## Project structure
+---
 
-```
-keyhold/
-├── contracts/
-│   ├── deposit/          # lease terms, fund custody, time-gated release
-│   └── inspection/        # standalone claim arbitration by trusted panel
-├── frontend/               # React app
-├── .github/workflows/      # CI/CD pipeline
-├── ARCHITECTURE.md          # contract design, state machine, event table
-└── DEPLOYMENT.md            # step-by-step testnet deployment guide
-```
+## 📸 Screenshots
 
-## Running locally
+### Product UI
+<img src="./images/product%20ui.png" alt="Product UI" width="800"/>
+
+### Mobile Responsive UI
+<img src="./images/responsive%20ui.png" alt="Mobile Responsive UI" width="300"/>
+
+### CI/CD Pipeline
+<img src="./images/CI%20CD.png" alt="CI CD Pipeline" width="800"/>
+
+### Test Output (3+ passing tests)
+<img src="./images/test%20output.png" alt="Test Output" width="800"/>
+
+---
+
+## 💻 Running Locally
 
 ### Contracts
 
-```bash
+`ash
 rustup target add wasm32-unknown-unknown
 cargo test --workspace
 cargo build --release --target wasm32-unknown-unknown
-```
+`
 
 ### Frontend
 
-```bash
+`ash
 cd frontend
 npm install
 npm test
 npm run lint
 npm run dev
-```
+`
 
-By default the frontend runs with no contract addresses configured and
-shows a clear banner saying so — see [DEPLOYMENT.md](./DEPLOYMENT.md) for
-deploying your own instance to testnet.
+By default the frontend runs with no contract addresses configured and shows a clear banner saying so — see [DEPLOYMENT.md](./DEPLOYMENT.md) for deploying your own instance to testnet.
 
-## Testing
+---
 
-- **Contracts:** 26 tests across both contracts — lease draft/fund/cancel
-  lifecycle, claim-window timing edge cases (before lease end, after
-  window close), the full claim-and-settlement flow with a partial
-  forfeit, a claim still pending ruling, and authorization checks (only
-  the tenant can fund, only the landlord can file a claim, forfeit can
-  never exceed the claimed amount).
-- **Frontend:** 15 tests covering event-label formatting, the live
-  countdown hook, and the key-status component.
+## ✅ Submission Checklist
 
-Run `cargo test --workspace` and `cd frontend && npm test` locally, or
-check the **Actions** tab on GitHub for CI runs.
+- [x] Public GitHub repository
+- [x] README with complete documentation
+- [x] Minimum 10+ meaningful commits
+- [x] Live demo link (Vercel)
+- [x] Contract deployment address
+- [x] Transaction hash for contract interaction
+- [x] Screenshot showing: Mobile responsive UI
+- [x] Screenshot showing: CI/CD pipeline running
+- [x] Screenshot showing: Test output with 3+ passing tests
+- [x] Demo video link (1–2 minutes)
 
-## Deployment
+---
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for deploying both contracts to
-Stellar testnet, wiring up a test token, and deploying the frontend to
-Vercel.
+## 📜 License
 
-**Live demo:** _add your Vercel URL here after deploying_
-**Deposit contract:** _add your deployed contract ID here_
-**Inspection contract:** _add your deployed contract ID here_
-**Example transaction:** _add a transaction hash from a real interaction here_
-
-## Screenshots
-
-_Add screenshots here after deploying:_
-- Mobile responsive UI
-- CI/CD pipeline passing (GitHub Actions tab)
-- Test output showing passing tests (`cargo test --workspace` and `npm test`)
-
-## Demo video
-
-_Add your 1–2 minute demo video link here._
-
-## License
-
-MIT
+MIT License
