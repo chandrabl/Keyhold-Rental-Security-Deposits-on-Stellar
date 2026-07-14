@@ -7,7 +7,7 @@ export default function Hero() {
       <h2 className="font-display font-bold text-3xl sm:text-5xl leading-[1.05] text-cyanline max-w-2xl">
         Security deposits that{' '}
         <span className="text-brass">release on schedule</span> — or go to
-        an inspector, not a landlord's discretion.
+        an inspector, not a landlord&apos;s discretion.
       </h2>
       <p className="mt-5 text-cyanline-dim/80 max-w-xl text-sm sm:text-base leading-relaxed">
         A tenant funds a deposit for a fixed lease term. If the landlord
