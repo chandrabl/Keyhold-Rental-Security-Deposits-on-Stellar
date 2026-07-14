@@ -106,7 +106,7 @@ export default function LeaseCard({
           </button>
         )}
 
-        {statusLower === 'funded' && windowClosed && (
+        {statusLower === 'funded' && isLandlord && windowClosed && (
           <button
             onClick={wrap(() => onReleaseDeposit(lease.id))}
             disabled={busy}
