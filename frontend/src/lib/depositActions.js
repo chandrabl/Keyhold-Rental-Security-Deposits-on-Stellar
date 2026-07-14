@@ -76,6 +76,23 @@ export async function getLease({ leaseId, sourcePublicKey }) {
 
 export function normalizeLease(leaseId, raw) {
   if (!raw) return null
+
+  // The contract returns status as an enum index (number) or string/object
+  const STATUS_MAP = { 0: 'Draft', 1: 'Funded', 2: 'Disputed', 3: 'Released' }
+  let statusRaw = raw.status
+  let status
+  if (typeof statusRaw === 'number') {
+    status = STATUS_MAP[statusRaw] ?? String(statusRaw)
+  } else if (typeof statusRaw === 'string') {
+    status = statusRaw
+  } else if (statusRaw && typeof statusRaw === 'object') {
+    // Soroban enum variant { Draft: null } or { 0: null }
+    const key = Object.keys(statusRaw)[0]
+    status = STATUS_MAP[Number(key)] ?? key
+  } else {
+    status = 'Draft'
+  }
+
   return {
     id: leaseId,
     landlord: raw.landlord,
@@ -84,7 +101,7 @@ export function normalizeLease(leaseId, raw) {
     depositAmount: (Number(raw.deposit_amount?.toString?.() ?? String(raw.deposit_amount)) / 1e7).toString(),
     leaseEnd: Number(raw.lease_end),
     claimWindowSeconds: Number(raw.claim_window_seconds),
-    status: typeof raw.status === 'string' ? raw.status : Object.keys(raw.status)[0],
+    status,
     fundedAt: Number(raw.funded_at),
   }
 }
