@@ -8,11 +8,11 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-soroban-sdk = "21.7.6"
+soroban-sdk = "27.0.0"
 inspection = { path = "../inspection",  }
 
 [dev-dependencies]
-soroban-sdk = { version = "21.7.6", features = ["testutils"] }
+soroban-sdk = { version = "27.0.0", features = ["testutils"] }
 inspection = { path = "../inspection", features = ["testutils"] }
 
 [features]
