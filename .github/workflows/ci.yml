@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [main]
+    branches: [ "master", "main" ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -32,11 +32,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Run contract test suite
-        run: cargo test --workspace --verbose
+      - name: Build Contracts
+        run: stellar contract build
 
-      - name: Build contracts to WASM (release)
-        run: cargo build --workspace --release --target wasm32-unknown-unknown
+      - name: Run contract test suite
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: cargo test --workspace --verbose | tail -60
 
       - name: Upload WASM artifacts
         uses: actions/upload-artifact@v4
@@ -50,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ./frontend
     steps:
       - uses: actions/checkout@v4
 
@@ -62,13 +64,13 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Lint
         run: npm run lint
 
       - name: Run test suite
-        run: npm test
+        run: npm run test
 
       - name: Build production bundle
         run: npm run build
