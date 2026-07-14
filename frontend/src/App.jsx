@@ -57,14 +57,17 @@ export default function App() {
         if (raw) {
           const normalized = normalizeLease(leaseId, raw)
           if (normalized) {
-            setLeases((prev) => {
-              const existing = prev[leaseId]
-              // Never downgrade status — trust the highest known status
-              if (existing && statusRank(existing.status) > statusRank(normalized.status)) {
-                return { ...prev, [leaseId]: { ...normalized, status: existing.status } }
-              }
-              return { ...prev, [leaseId]: normalized }
-            })
+            // Read the persisted best-known status directly from localStorage
+            const persisted = loadFromStorage(LS_STATUSES, {})
+            const persistedStatus = persisted[leaseId] || persisted[String(leaseId)]
+            const bestStatus = [normalized.status, persistedStatus].reduce(
+              (best, s) => (s && statusRank(s) > statusRank(best) ? s : best),
+              'draft'
+            )
+            setLeases((prev) => ({
+              ...prev,
+              [leaseId]: { ...normalized, status: bestStatus },
+            }))
           }
         }
       } catch (err) {
@@ -118,21 +121,6 @@ export default function App() {
     knownLeaseIds.forEach((id) => refreshLease(id))
   }, [wallet.address]) // eslint-disable-line
 
-  // Restore persisted statuses when leases load (overrides stale blockchain data)
-  useEffect(() => {
-    if (Object.keys(savedStatuses).length === 0) return
-    setLeases((prev) => {
-      const next = { ...prev }
-      Object.entries(savedStatuses).forEach(([id, status]) => {
-        const numId = Number(id)
-        if (next[numId] && statusRank(next[numId].status) < statusRank(status)) {
-          next[numId] = { ...next[numId], status }
-        }
-      })
-      return next
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leases, savedStatuses])
 
   const handleCreateLease = async ({ tenant, token, depositAmount, leaseEnd, claimWindowSeconds }) => {
     if (!wallet.address) {
