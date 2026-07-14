@@ -81,7 +81,7 @@ export function normalizeLease(leaseId, raw) {
     landlord: raw.landlord,
     tenant: raw.tenant,
     token: raw.token,
-    depositAmount: raw.deposit_amount?.toString?.() ?? String(raw.deposit_amount),
+    depositAmount: (Number(raw.deposit_amount?.toString?.() ?? String(raw.deposit_amount)) / 1e7).toString(),
     leaseEnd: Number(raw.lease_end),
     claimWindowSeconds: Number(raw.claim_window_seconds),
     status: typeof raw.status === 'string' ? raw.status : Object.keys(raw.status)[0],

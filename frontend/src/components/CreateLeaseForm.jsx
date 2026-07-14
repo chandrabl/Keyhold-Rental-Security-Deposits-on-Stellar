@@ -5,8 +5,8 @@ export default function CreateLeaseForm({ onCreate, disabled }) {
   const [tenant, setTenant] = useState('')
   const [token, setToken] = useState('')
   const [amount, setAmount] = useState('')
-  const [leaseDays, setLeaseDays] = useState('180')
-  const [claimWindowDays, setClaimWindowDays] = useState('7')
+  const [leaseDays, setLeaseDays] = useState('40')
+  const [claimWindowDays, setClaimWindowDays] = useState('20')
   const [busy, setBusy] = useState(false)
 
   const valid =
@@ -17,19 +17,19 @@ export default function CreateLeaseForm({ onCreate, disabled }) {
     if (!valid) return
     setBusy(true)
     try {
-      const leaseEnd = Math.floor(Date.now() / 1000) + Number(leaseDays) * 86400
+      const leaseEnd = Math.floor(Date.now() / 1000) + Number(leaseDays)
       await onCreate({
         tenant: tenant.trim(),
         token: token.trim(),
-        depositAmount: Number(amount),
+        depositAmount: Math.floor(Number(amount) * 1e7),
         leaseEnd,
-        claimWindowSeconds: Number(claimWindowDays) * 86400,
+        claimWindowSeconds: Number(claimWindowDays),
       })
       setTenant('')
       setToken('')
       setAmount('')
-      setLeaseDays('180')
-      setClaimWindowDays('7')
+      setLeaseDays('40')
+      setClaimWindowDays('20')
       setOpen(false)
     } finally {
       setBusy(false)
@@ -91,13 +91,13 @@ export default function CreateLeaseForm({ onCreate, disabled }) {
             onChange={(e) => setAmount(e.target.value)}
             type="number"
             min="0"
-            placeholder="1000"
+            placeholder="100"
             className="w-full bg-blueprint border border-blueprint-line rounded p-2.5 text-sm font-mono text-cyanline placeholder:text-cyanline-dim/30 focus:border-brass/60 outline-none"
           />
         </div>
         <div>
           <label className="font-mono text-[10px] uppercase tracking-widest2 text-cyanline-dim/60 block mb-1.5">
-            Lease length (days)
+            Lease length (sec)
           </label>
           <input
             value={leaseDays}
@@ -109,7 +109,7 @@ export default function CreateLeaseForm({ onCreate, disabled }) {
         </div>
         <div>
           <label className="font-mono text-[10px] uppercase tracking-widest2 text-cyanline-dim/60 block mb-1.5">
-            Claim window (days)
+            Claim window (sec)
           </label>
           <input
             value={claimWindowDays}
