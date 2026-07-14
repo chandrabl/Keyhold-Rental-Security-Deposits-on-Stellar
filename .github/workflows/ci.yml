@@ -45,6 +45,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cargo test --workspace --verbose | tail -60
 
+      - name: Deploy Contracts
+        run: bash scripts/deploy.sh
+
       - name: Upload WASM artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -12,18 +12,18 @@ fi
 
 DEPLOYER="deployer"
 
-echo "==> Deploying Contract 1..."
-CONTRACT_1_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/contract_1.wasm --source $DEPLOYER --network testnet)
-echo "Contract 1 deployed at: $CONTRACT_1_ID"
+echo "==> Deploying Deposit Contract..."
+DEPOSIT_ID=$(stellar contract deploy --wasm target/wasm32v1-none/release/deposit.wasm --source $DEPLOYER --network testnet)
+echo "Deposit Contract deployed at: $DEPOSIT_ID"
 
-echo "==> Deploying Contract 2..."
-CONTRACT_2_ID=$(stellar contract deploy --wasm target/wasm32-unknown-unknown/release/contract_2.wasm --source $DEPLOYER --network testnet)
-echo "Contract 2 deployed at: $CONTRACT_2_ID"
+echo "==> Deploying Inspection Contract..."
+INSPECTION_ID=$(stellar contract deploy --wasm target/wasm32v1-none/release/inspection.wasm --source $DEPLOYER --network testnet)
+echo "Inspection Contract deployed at: $INSPECTION_ID"
 
 echo ""
 echo "=================================================="
 echo " Deployment complete"
 echo "=================================================="
-echo " CONTRACT_1_ID: $CONTRACT_1_ID"
-echo " CONTRACT_2_ID: $CONTRACT_2_ID"
+echo " VITE_DEPOSIT_CONTRACT_ID: $DEPOSIT_ID"
+echo " VITE_INSPECTION_CONTRACT_ID: $INSPECTION_ID"
 echo "=================================================="
