@@ -107,13 +107,24 @@ export default function App() {
     feed.forEach((entry) => {
       const rawTopics = entry.raw?.topics || []
       const numericTopic = rawTopics.find((t) => typeof t === 'number' || typeof t === 'bigint')
-      if (numericTopic !== undefined) leaseIds.add(Number(numericTopic))
+      if (numericTopic !== undefined) {
+        const id = Number(numericTopic)
+        leaseIds.add(id)
+        
+        // Soroban RPC nodes often return stale data for `get_lease`.
+        // If we see an event in the feed, we can trust the ledger actually advanced.
+        const action = typeof rawTopics[1] === 'string' ? rawTopics[1].toLowerCase() : ''
+        if (action === 'funded') optimisticStatusUpdate(id, 'Funded')
+        if (action === 'claimed') optimisticStatusUpdate(id, 'Disputed')
+        if (action === 'released' || action === 'settled') optimisticStatusUpdate(id, 'Released')
+      }
     })
     leaseIds.forEach((id) => {
       refreshLease(id)
       setKnownLeaseIds((prev) => (prev.includes(id) ? prev : [...prev, id]))
     })
-  }, [feed, configured, refreshLease])
+  }, [feed, configured, refreshLease, optimisticStatusUpdate])
+
 
   // Load all known leases on wallet connect
   useEffect(() => {
