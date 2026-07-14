@@ -23,10 +23,10 @@ const LS_TX = 'keyhold_tx'
 const LS_IDS = 'keyhold_lease_ids'
 
 function loadFromStorage(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback }
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch (_e) { return fallback }
 }
 function saveToStorage(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)) } catch {}
+  try { localStorage.setItem(key, JSON.stringify(value)) } catch (_e) { /* ignore */ }
 }
 
 export default function App() {
