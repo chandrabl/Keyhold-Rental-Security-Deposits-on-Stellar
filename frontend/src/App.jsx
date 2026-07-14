@@ -73,6 +73,7 @@ export default function App() {
       setTxByLease((prev) => ({ ...prev, [leaseId]: hash }))
       setKnownLeaseIds((prev) => [...prev, Number(leaseId)])
       await refreshLease(Number(leaseId))
+      if (wallet.refreshBalance) await wallet.refreshBalance()
     } catch (err) {
       setErrorMsg(err.message || 'Failed to draft lease.')
     }
@@ -83,6 +84,7 @@ export default function App() {
       const { hash } = await fn(...args)
       setTxByLease((prev) => ({ ...prev, [leaseId]: hash }))
       await refreshLease(leaseId)
+      if (wallet.refreshBalance) await wallet.refreshBalance()
     } catch (err) {
       setErrorMsg(err.message || 'Transaction failed.')
     }

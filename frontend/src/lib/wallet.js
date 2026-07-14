@@ -50,4 +50,20 @@ export async function signTransaction(xdr, networkPassphrase) {
   return result.signedTxXdr || result
 }
 
+export async function getXlmBalance(address, isPublic = false) {
+  try {
+    const url = isPublic 
+      ? `https://horizon.stellar.org/accounts/${address}`
+      : `https://horizon-testnet.stellar.org/accounts/${address}`
+    const res = await fetch(url)
+    if (!res.ok) return '0.00'
+    const data = await res.json()
+    const balance = data.balances.find((b) => b.asset_type === 'native')
+    return balance ? parseFloat(balance.balance).toFixed(2) : '0.00'
+  } catch (err) {
+    console.error('Failed to fetch XLM balance:', err)
+    return '0.00'
+  }
+}
+
 export { NETWORK_PASSPHRASES }

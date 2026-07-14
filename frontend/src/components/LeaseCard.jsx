@@ -17,13 +17,14 @@ export default function LeaseCard({
   const [claimReason, setClaimReason] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const isLandlord = walletAddress && lease.landlord === walletAddress
-  const isTenant = walletAddress && lease.tenant === walletAddress
+  const isLandlord = walletAddress && lease.landlord?.trim() === walletAddress?.trim()
+  const isTenant = walletAddress && lease.tenant?.trim() === walletAddress?.trim()
   const short = (addr) => (addr ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : '—')
 
   const now = Math.floor(Date.now() / 1000)
   const windowClosed = now > lease.leaseEnd + lease.claimWindowSeconds;
   const leaseEnded = now >= lease.leaseEnd;
+  const statusLower = lease.status?.toLowerCase?.() || 'draft';
 
   const wrap = (fn) => async (...args) => {
     setBusy(true)
@@ -76,7 +77,7 @@ export default function LeaseCard({
       </div>
 
       <div className="flex flex-wrap gap-2 pt-3 border-t border-blueprint-line/70">
-        {lease.status === 'Draft' && isTenant && (
+        {statusLower === 'draft' && isTenant && (
           <button
             onClick={wrap(() => onFundDeposit(lease.id))}
             disabled={busy}
@@ -86,7 +87,7 @@ export default function LeaseCard({
           </button>
         )}
 
-        {lease.status === 'Funded' && isLandlord && leaseEnded && !windowClosed && !showClaimForm && (
+        {statusLower === 'funded' && isLandlord && leaseEnded && !windowClosed && !showClaimForm && (
           <button
             onClick={() => setShowClaimForm(true)}
             className="font-mono text-xs px-3 py-2 rounded border border-signal-stop/50 text-signal-stop hover:bg-signal-stop/10 transition-colors"
@@ -95,7 +96,7 @@ export default function LeaseCard({
           </button>
         )}
 
-        {lease.status === 'Funded' && windowClosed && (
+        {statusLower === 'funded' && windowClosed && (
           <button
             onClick={wrap(() => onReleaseDeposit(lease.id))}
             disabled={busy}
@@ -105,7 +106,7 @@ export default function LeaseCard({
           </button>
         )}
 
-        {lease.status === 'Disputed' && (
+        {statusLower === 'disputed' && (
           <button
             onClick={wrap(() => onSettleClaim(lease.id))}
             disabled={busy}

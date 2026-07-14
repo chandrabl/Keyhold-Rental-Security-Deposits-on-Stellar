@@ -20,13 +20,18 @@ export default function Header({ wallet }) {
 
         <div>
           {wallet.address ? (
-            <button
-              onClick={wallet.disconnect}
-              className="font-mono text-xs sm:text-sm px-3 py-2 rounded border border-brass/40 text-brass hover:bg-brass/10 transition-colors"
-              title="Click to disconnect"
-            >
-              {short(wallet.address)}
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-xs text-cyanline-dim/70 bg-blueprint-soft px-2 py-1.5 rounded border border-blueprint-line">
+                {wallet.balance} XLM
+              </span>
+              <button
+                onClick={wallet.disconnect}
+                className="font-mono text-xs sm:text-sm px-3 py-1.5 rounded border border-brass/40 text-brass hover:bg-brass/10 transition-colors"
+                title="Click to disconnect"
+              >
+                {short(wallet.address)}
+              </button>
+            </div>
           ) : (
             <button
               onClick={wallet.connect}
