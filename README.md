@@ -121,9 +121,3 @@ By default the frontend runs with no contract addresses configured and shows a c
 - [x] Screenshot showing: CI/CD pipeline running
 - [x] Screenshot showing: Test output with 3+ passing tests
 - [x] Demo video link (1–2 minutes)
-
----
-
-## 📜 License
-
-MIT License
