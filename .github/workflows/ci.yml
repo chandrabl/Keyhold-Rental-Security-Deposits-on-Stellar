@@ -32,6 +32,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Install Stellar CLI
+        uses: stellar/actions/setup-cli@main
+        with:
+          version: latest
+
       - name: Build Contracts
         run: stellar contract build
 
