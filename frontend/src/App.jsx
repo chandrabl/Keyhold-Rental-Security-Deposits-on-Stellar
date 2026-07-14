@@ -21,6 +21,10 @@ import {
 // Persist tx hashes and known lease IDs across page refreshes
 const LS_TX = 'keyhold_tx'
 const LS_IDS = 'keyhold_lease_ids'
+const LS_STATUSES = 'keyhold_statuses' // persisted status overrides
+
+const STATUS_ORDER = ['draft', 'funded', 'disputed', 'released']
+const statusRank = (s) => STATUS_ORDER.indexOf((s || 'draft').toLowerCase())
 
 function loadFromStorage(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch (_e) { return fallback }
@@ -36,21 +40,32 @@ export default function App() {
   const [leases, setLeases] = useState({})
   const [knownLeaseIds, setKnownLeaseIds] = useState(() => loadFromStorage(LS_IDS, []))
   const [txByLease, setTxByLease] = useState(() => loadFromStorage(LS_TX, {}))
+  const [savedStatuses, setSavedStatuses] = useState(() => loadFromStorage(LS_STATUSES, {}))
   const [errorMsg, setErrorMsg] = useState(null)
 
   const configured = isConfigured()
 
   // Persist tx hashes
   useEffect(() => { saveToStorage(LS_TX, txByLease) }, [txByLease])
-  // Persist known lease IDs
   useEffect(() => { saveToStorage(LS_IDS, knownLeaseIds) }, [knownLeaseIds])
+  useEffect(() => { saveToStorage(LS_STATUSES, savedStatuses) }, [savedStatuses])
 
   const refreshLease = useCallback(
     async (leaseId) => {
       try {
         const raw = await getLease({ leaseId, sourcePublicKey: wallet.address })
         if (raw) {
-          setLeases((prev) => ({ ...prev, [leaseId]: normalizeLease(leaseId, raw) }))
+          const normalized = normalizeLease(leaseId, raw)
+          if (normalized) {
+            setLeases((prev) => {
+              const existing = prev[leaseId]
+              // Never downgrade status — trust the highest known status
+              if (existing && statusRank(existing.status) > statusRank(normalized.status)) {
+                return { ...prev, [leaseId]: { ...normalized, status: existing.status } }
+              }
+              return { ...prev, [leaseId]: normalized }
+            })
+          }
         }
       } catch (err) {
         console.error(`Failed to load lease ${leaseId}:`, err)
@@ -59,11 +74,17 @@ export default function App() {
     [wallet.address]
   )
 
-  // Optimistically update a lease's status in local state (for immediate UI feedback)
+  // Optimistically update a lease's status — also persist to localStorage
   const optimisticStatusUpdate = useCallback((leaseId, newStatus) => {
+    setSavedStatuses((prev) => {
+      const curr = prev[leaseId]
+      if (curr && statusRank(curr) >= statusRank(newStatus)) return prev
+      return { ...prev, [leaseId]: newStatus }
+    })
     setLeases((prev) => {
       const existing = prev[leaseId]
       if (!existing) return prev
+      if (statusRank(existing.status) >= statusRank(newStatus)) return prev
       return { ...prev, [leaseId]: { ...existing, status: newStatus } }
     })
   }, [])
@@ -97,6 +118,22 @@ export default function App() {
     knownLeaseIds.forEach((id) => refreshLease(id))
   }, [wallet.address]) // eslint-disable-line
 
+  // Restore persisted statuses when leases load (overrides stale blockchain data)
+  useEffect(() => {
+    if (Object.keys(savedStatuses).length === 0) return
+    setLeases((prev) => {
+      const next = { ...prev }
+      Object.entries(savedStatuses).forEach(([id, status]) => {
+        const numId = Number(id)
+        if (next[numId] && statusRank(next[numId].status) < statusRank(status)) {
+          next[numId] = { ...next[numId], status }
+        }
+      })
+      return next
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leases, savedStatuses])
+
   const handleCreateLease = async ({ tenant, token, depositAmount, leaseEnd, claimWindowSeconds }) => {
     if (!wallet.address) {
       setErrorMsg('Connect your wallet before drafting a lease.')
@@ -126,12 +163,15 @@ export default function App() {
     try {
       const { hash } = await fn(...args)
       setTxByLease((prev) => ({ ...prev, [leaseId]: hash }))
-      // Immediately update UI with the expected new status
       if (optimisticStatus) optimisticStatusUpdate(leaseId, optimisticStatus)
       if (wallet.refreshBalance) await wallet.refreshBalance()
-      // Also do a real refresh after a delay to confirm
       setTimeout(() => refreshLease(leaseId), 5000)
     } catch (err) {
+      // Error(Contract, #7) on fund_deposit = already funded — update UI silently
+      if (err.message?.includes('Error(Contract, #7)') && optimisticStatus === 'Funded') {
+        optimisticStatusUpdate(leaseId, 'Funded')
+        return
+      }
       setErrorMsg(err.message || 'Transaction failed.')
     }
   }
