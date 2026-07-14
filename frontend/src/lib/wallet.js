@@ -1,23 +1,31 @@
+import {
+  isConnected,
+  requestAccess,
+  getAddress,
+  getNetworkDetails as freighterGetNetworkDetails,
+  signTransaction as freighterSignTransaction,
+} from '@stellar/freighter-api'
+
 const NETWORK_PASSPHRASES = {
   TESTNET: 'Test SDF Network ; September 2015',
   PUBLIC: 'Public Global Stellar Network ; September 2015',
 }
 
-export function isFreighterInstalled() {
-  return typeof window !== 'undefined' && !!window.freighterApi
+export async function isFreighterInstalled() {
+  return await isConnected()
 }
 
 export async function connectWallet() {
-  if (!isFreighterInstalled()) {
+  if (!(await isConnected())) {
     throw new Error(
       'Freighter wallet extension not found. Install it from freighter.app to continue.'
     )
   }
-  const access = await window.freighterApi.requestAccess()
+  const access = await requestAccess()
   if (access.error) {
     throw new Error(access.error)
   }
-  const addressResult = await window.freighterApi.getAddress()
+  const addressResult = await getAddress()
   if (addressResult.error) {
     throw new Error(addressResult.error)
   }
@@ -25,21 +33,21 @@ export async function connectWallet() {
 }
 
 export async function getNetworkDetails() {
-  if (!isFreighterInstalled()) return null
-  return window.freighterApi.getNetworkDetails()
+  if (!(await isConnected())) return null
+  return freighterGetNetworkDetails()
 }
 
 export async function signTransaction(xdr, networkPassphrase) {
-  if (!isFreighterInstalled()) {
+  if (!(await isConnected())) {
     throw new Error('Freighter wallet extension not found.')
   }
-  const result = await window.freighterApi.signTransaction(xdr, {
+  const result = await freighterSignTransaction(xdr, {
     networkPassphrase,
   })
   if (result.error) {
     throw new Error(result.error)
   }
-  return result.signedTxXdr
+  return result.signedTxXdr || result
 }
 
 export { NETWORK_PASSPHRASES }
