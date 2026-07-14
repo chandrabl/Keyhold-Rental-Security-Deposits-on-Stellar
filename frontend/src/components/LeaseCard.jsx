@@ -81,6 +81,13 @@ export default function LeaseCard({
       </div>
 
       <div className="flex flex-wrap gap-2 pt-3 border-t border-blueprint-line/70">
+        {/* DEBUG ROW - remove after testing */}
+        <div className="w-full text-[9px] font-mono bg-black/40 px-2 py-1.5 rounded border border-blueprint-line mb-2 break-all space-y-0.5">
+          <div><span className="text-cyanline-dim/50">wallet: </span><span className="text-brass">{walletAddress || '(not connected)'}</span></div>
+          <div><span className="text-cyanline-dim/50">tenant: </span><span className="text-cyanline">{lease.tenant || '—'}</span></div>
+          <div><span className="text-cyanline-dim/50">match: </span><span className={isTenant ? 'text-signal-go' : 'text-signal-stop'}>{String(isTenant)}</span><span className="text-cyanline-dim/50 ml-3">status: </span><span className="text-cyanline">{statusLower}</span></div>
+        </div>
+
         {statusLower === 'draft' && walletAddress && !isTenant && !isLandlord && (
           <div className="w-full text-[10px] sm:text-xs font-mono text-signal-stop bg-signal-stop/10 px-3 py-2 rounded mb-2 border border-signal-stop/30">
             Cannot fund deposit: You are connected as <span className="font-bold">{short(walletAddress)}</span> but the tenant is <span className="font-bold">{short(lease.tenant)}</span>. Switch to the Tenant account in Freighter!
